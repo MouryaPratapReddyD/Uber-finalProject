@@ -1,16 +1,13 @@
-# BUILDER 
-FROM node:15.2.0-alpine as builder
-WORKDIR /usr/src/app
-ENV PATH /usr/src/app/node_modules/.bin:$PATH
-COPY package.json .
-COPY package-lock.json .
-RUN npm ci
-ARG NODE_ENV
-ENV NODE_ENV $NODE_ENV
-COPY . .
-RUN npm run build
+FROM python:3.9-slim-buster
+WORKDIR /app
+ADD . .
+RUN apt-get update
+RUN pip3 install -r requirements.txt
 
-# FINAL 
-FROM nginx
-COPY --from=builder /usr/src/app/build /usr/share/nginx/html
-EXPOSE 80
+# run as non-root user
+RUN adduser --disabled-password myuser
+USER myuser
+
+# run gunicorn with 3 threads listening on port 5000.
+EXPOSE 5000
+CMD gunicorn --threads=3 --bind 0.0.0.0:5000 wsgi:app

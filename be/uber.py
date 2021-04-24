@@ -50,7 +50,7 @@ def set_env_var():
     if 'database_url' not in g:
         g['database_url'] = os.environ.get("DATABASE_URL", 'mongodb+srv://dmouryapr:Abstergo97@uberbus.syoj4.mongodb.net/bookings?retryWrites=true&w=majority')
     if 'secret_key' not in g:
-        g['secret_key'] = os.environ.get("SECRET_KEY", "your256bitsecret")
+        g['secret_key'] = os.environ.get("SECRET_KEY", "my_precious_1989")
     # g['secret_key'] = os.environ.get("SECRET_KEY", "your256bitsecret")
     if 'bcrypt_log_rounds' not in g:
         g['bcrypt_log_rounds'] = os.environ.get("BCRYPT_LOG_ROUNDS", 13)
@@ -147,16 +147,19 @@ def login():
             print('No such username exists')
             return jsonify(("Entered username does not exist", status.HTTP_401_UNAUTHORIZED))
         else:
+            # presumably we only store password hashes and compare passed pwd
+            # with our stored hash. For simplicity, we store the full password
+            # and the hash, which we retrieve here
             print('password_hashes:', get_env_var('password_hashes'))
             print("get_env_var('users').index(user):", get_env_var('users').index(user))
             password_hash = get_env_var('password_hashes')[get_env_var('users').index(user)]
             print('password_hash:', password_hash)
-            #a = datetime.now()
+            a = datetime.now()
             if not bcrypt.check_password_hash(password_hash, password):
                 print('Verification of Password with the signature = False')
                 return jsonify(("Authentication failed", status.HTTP_401_UNAUTHORIZED))
-            #b = datetime.now()
-            #print('check_password took:', b - a)
+            b = datetime.now()
+            print('check_password took:', b - a)
 
             # create access and refresh token for the user to save.
             # User needs to pass access token for all secured APIs.
