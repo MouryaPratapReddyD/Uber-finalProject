@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: uberfe
+spec:
+ selector:
+  matchLabels:
+   app: uberfe
+ replicas: 1
+ minReadySeconds: 15
+ strategy:
+  type: RollingUpdate
+  rollingUpdate:
+   maxUnavailable: 1
+   maxSurge: 1
+ template:
+  metadata:
+   labels:
+    app: uberfe
+  spec:
+   containers:
+    - image: 211252803163.dkr.ecr.us-west-2.amazonaws.com/uberbe:prod
+      imagePullPolicy: Always
+      name: uberfe
+      ports:
+       - containerPort: 80
+

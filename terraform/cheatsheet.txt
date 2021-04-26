@@ -1,0 +1,37 @@
+terraform init, plan, apply
+
+terraform output kubeconfig > c:/Users/moury/.kube/config-terraform-eks-demo
+# Remove <<EOT and EOT and remove the lines above apiVersion: v1 line in the above file
+
+cp C:/Users/moury/.kube/config C:/Users/moury/.kube/config.bak
+cp C:/Users/moury/.kube/config-terraform-eks-demo C:/Users/moury/.kube/config
+
+terraform output config_map_aws_auth  #to view the configmap
+terraform output config_map_aws_auth > ./config-map-aws-auth.yml
+# Remove <<EOT and EOT and remove the lines above apiVersion: v1 line in the above file
+
+aws eks get-token --cluster-name terraform-eks-demo  //dont know if i should use this, but used it
+kubectl apply -f ./config-map-aws-auth.yml   //ran in cmd prompt, not in powershell
+
+kubectl get nodes
+
+aws eks --region us-west-2 update-kubeconfig --name terraform-eks-demo    //this is working, added region in it
+// deleted the config file in .kube folder than ran the above amd. it worked
+
+kubectl create -f https://raw.githubusercontent.com/dinorows/TCO490/master/kubernetes-dashboard-15.yaml
+kubectl proxy --port=8080 --disable-filter=true
+
+Part 3 deploy pods to k8s
+
+kubectl apply -f sa-frontend-deployment.yaml
+kubectl create -f service-sa-frontend-lb.yaml
+kubectl apply -f sa-logic-deployment.yaml
+kubectl apply -f service-sa-logic.yaml
+kubectl apply -f sa-webapp-deployment.yaml
+kubectl apply -f service-sa-webapp-lb.yaml
+
+kubectl get svc  //this has external ip to call the fe 
+Paste   http://<webapp's IP in kubectl get svc>   in the springboot endpoint address field in the frontend app in the browser
+
+kubectl delete all deployments and services
+before terraform destroy, remove related load balancers and SGs in aws
