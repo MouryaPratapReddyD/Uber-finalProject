@@ -24,8 +24,8 @@ resource "aws_security_group_rule" "final-cluster-ingress-node-https" {
   description              = "Allow pods to communicate with the cluster API Server"
   from_port                = 443
   protocol                 = "tcp"
-  security_group_id        = "${aws_security_group.final-cluster.id}"
-  source_security_group_id = "${aws_security_group.final-node.id}"
+  security_group_id        = aws_security_group.final-cluster.id
+  source_security_group_id = aws_security_group.final-node.id
   to_port                  = 443
   type                     = "ingress"
 }
@@ -35,7 +35,7 @@ resource "aws_security_group_rule" "final-cluster-ingress-workstation-https" {
   description       = "Allow workstation to communicate with the cluster API Server"
   from_port         = 443
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.final-cluster.id}"
+  security_group_id = aws_security_group.final-cluster.id
   to_port           = 443
   type              = "ingress"
 }

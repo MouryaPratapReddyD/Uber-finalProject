@@ -3,7 +3,7 @@
 version: '3.1'
 
 services:
-  be:
+  uberbe:
     build:
       context: ./be
       dockerfile: Dockerfile
@@ -19,9 +19,9 @@ services:
       - DATABASE_URL=mongodb+srv://dmouryapr:Abstergo97@uberbus.syoj4.mongodb.net/bookings?retryWrites=true&w=majority
       - DATABASE_TEST_URL=mongodb://localhost:27017/
     networks:
-      - backend
+      - uberbe
 
-  fe:
+  uberfe:
     stdin_open: true
     build:
       context: ./fe
@@ -34,19 +34,19 @@ services:
       - 3007:80
     environment:
       - NODE_ENV=development
-      - REACT_APP_BE_NETWORK=backend
+      - REACT_APP_BE_NETWORK=uberbe
       - REACT_APP_BE_PORT=5000
       - REACT_APP_API_SERVICE_URL=http://localhost:5004
     depends_on:
-      - be
+      - uberbe
     # specifies frontend and backend as the networks the fe service will have access to
     networks:
-      - fe
-      - be
+      - uberfe
+      - uberbe
       
 # bridge networks to allow the containers to communicate with each other
 networks:
-  fe:
+  uberfe:
     driver: bridge
-  be:
+  uberbe:
     driver: bridge

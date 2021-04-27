@@ -6,19 +6,20 @@
 resource "aws_iam_role" "final-cluster" {
   name = "terraform-eks-final-cluster"
 
-   assume_role_policy = jsonencode({
-   Version = "2012-10-17"
-   Statement = [
-     {
-       Action = "sts:AssumeRole"
-       Effect = "Allow"
-       Sid    = ""
-       Principal = {
-         Service = "eks.amazonaws.com"
-       }
-     },
-   ]
- })
+   assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "eks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
 }
 
 # potential new code

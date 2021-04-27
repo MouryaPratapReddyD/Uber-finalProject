@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
- name: uberbe
+ name: uberfe
 spec:
  selector:
   matchLabels:
-   app: uberbe
- replicas: 3
+   app: uberfe
+ replicas: 1
  minReadySeconds: 15
  strategy:
   type: RollingUpdate
@@ -16,11 +16,12 @@ spec:
  template:
   metadata:
    labels:
-    app: uberbe
+    app: uberfe
   spec:
    containers:
-    - image: 211252803163.dkr.ecr.us-west-2.amazonaws.com/uberbe:prod
+    - image: 211252803163.dkr.ecr.us-east-2.amazonaws.com/uberfe:prod
       imagePullPolicy: Always
-      name: uberbe
+      name: uberfe
       ports:
-       - containerPort: 5000
+       - containerPort: 80
+

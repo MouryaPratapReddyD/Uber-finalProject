@@ -7,9 +7,9 @@
 # vpc_zone_identifier  = "${aws_subnet.final.*.id}"
 
 resource "aws_autoscaling_group" "final" {
-  desired_capacity     = 4
+  desired_capacity     = 3
   launch_configuration = "${aws_launch_configuration.final.id}"
-  max_size             = 4
+  max_size             = 3
   min_size             = 1
   name                 = "terraform-eks-final"
   vpc_zone_identifier  = aws_subnet.final.*.id

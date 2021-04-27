@@ -14,7 +14,6 @@ const THome = () => {
       //const res = await fetch("http://localhost:5000/tweets-results");
       //const res = await fetch(`${process.env.REACT_APP_BE_NETWORK}:${process.env.REACT_APP_BE_PORT}/tweets-results`);
       //const res = await fetch(`${process.env.REACT_APP_API_SERVICE_URL}/tweets-results`);
-      //const res = await fetch(`http://localhost:5000/bookings-user-week-results?user=${encodeURIComponent(data.user)}`);
       console.log(localStorage.getItem("username"));
       const data = {user: localStorage.getItem("username")};
 
@@ -26,8 +25,8 @@ const THome = () => {
         alert("Please login to see bookings!");
       }
 
-      const res = await fetch(`http://localhost:5000/bookings-user-week-results?user=${encodeURIComponent(data.user)}`);
-      //const res = await fetch("/bookings-user-week-results?user=${encodeURIComponent(data.user)}");
+      //const res = await fetch(`http://localhost:5000/bookings-user-week-results?user=${encodeURIComponent(data.user)}`);
+      const res = await fetch(`/bookings-user-week-results?user=${encodeURIComponent(data.user)}`);
       
       console.log(res);
       const { results } = await res.json();
@@ -37,7 +36,7 @@ const THome = () => {
       console.log(bookings);
     };
  
-    //print("Home.js: fetching from " + `${process.env.REACT_APP_API_SERVICE_URL}/tweets-results`)
+    
     fetchData();
   }, []);
 

@@ -68,8 +68,8 @@ const addUser = async (username, password) => {
     }
 
 
-    const response = await fetch("http://localhost:5000/register", config);
-    //const response = await fetch("/register", config);
+    //const response = await fetch("http://localhost:5000/register", config);
+    const response = await fetch("/register", config);
     //const response = await fetch(`${process.env.REACT_APP_API_SERVICE_URL}:5000/register`, config);
     //const json = await response.json()
     if (response.ok) {
