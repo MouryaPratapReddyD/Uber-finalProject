@@ -3,7 +3,6 @@
 version: '3.1'
 
 services:
-
   be:
     build:
       context: ./be
@@ -35,19 +34,19 @@ services:
       - 3007:80
     environment:
       - NODE_ENV=development
-      - BE_NETWORK=backend
-      - BE_PORT=5000
-      - REACT_APP_API_SERVICE_URL=${REACT_APP_API_SERVICE_URL}
+      - REACT_APP_BE_NETWORK=backend
+      - REACT_APP_BE_PORT=5000
+      - REACT_APP_API_SERVICE_URL=http://localhost:5004
     depends_on:
       - be
     # specifies frontend and backend as the networks the fe service will have access to
     networks:
-      - frontend
-      - backend
+      - fe
+      - be
       
 # bridge networks to allow the containers to communicate with each other
 networks:
-  frontend:
+  fe:
     driver: bridge
-  backend:
+  be:
     driver: bridge

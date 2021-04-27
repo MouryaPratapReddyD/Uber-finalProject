@@ -5,24 +5,19 @@ const TweetItem = ({ item: booking }) => {
   return (
     <View style={styles.row}>
       
-      <Image style={styles.rowIcon} source={"../../ubericon.webp"} />
+      {/* <Image style={styles.rowIcon} source={"add an image.webp here"} /> */}
       <View style={styles.rowData}>
-      <Text style={styles.rowDataText}>Username           : {booking.user}</Text><br></br>
-        <Text style={styles.rowDataText}>First Name           : {booking.firstName}</Text><br></br>
-        <Text style={styles.rowDataText}>Last Name            : {booking.lastName}</Text><br></br>
-        <Text style={styles.rowDataText}>Source                   : {booking.source}</Text><br></br>
-        <Text style={styles.rowDataText}>Destination          : {booking.destination}</Text><br></br>
-        <Text style={styles.rowDataText}>Journey Date       : {booking.journeyDate}</Text><br></br>
+      <Text style={styles.rowDataText}>Username :   {booking.user}</Text><br></br>
+        {/* <Text style={styles.rowDataText}>First Name :   {booking.firstName}</Text><br></br>
+        <Text style={styles.rowDataText}>Last Name :   {booking.lastName}</Text><br></br> */}
+        <Text style={styles.rowDataText}>Source :   {booking.source}</Text><br></br>
+        <Text style={styles.rowDataText}>Destination :   {booking.destination}</Text><br></br>
+        <Text style={styles.rowDataText}>Journey Date :   {booking.journeyDate}</Text><br></br>
       </View>
     </View>
   );
 };
 
-//rowIcon: consider adding, to handle BIG images:
-//resizeMode: 'contain'
-//resizeMode: 'cover'
-//resiceMode: 'center'
-// https://reactnative.dev/docs/image.html#resizemode
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",

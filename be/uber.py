@@ -17,61 +17,70 @@ import io
 from uuid import UUID
 from bson.objectid import ObjectId
 import json as JSON
+# straight mongo access
+from pymongo import MongoClient
+
+# security
+# pip install flask-bcrypt
+# https://pypi.org/project/Bcrypt-Flask/
+# https://auth0.com/blog/refresh-tokens-what-are-they-and-when-to-use-them/
+#from flask.ext.bcrypt import Bcrypt
 from flask_bcrypt import Bcrypt
 from flask import g
 import jwt
 g = dict()
 
-# straight mongo access
-from pymongo import MongoClient
-
 # mongo
 #mongo_client = MongoClient('mongodb://localhost:27017/')
-# mongo_client = MongoClient("mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority")
 mongo_client = MongoClient("mongodb+srv://dmouryapr:Abstergo97@uberbus.syoj4.mongodb.net/bookings?retryWrites=true&w=majority")
-
+# mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority
+# client = pymongo.MongoClient("mongodb+srv://dmouryapr:<password>@uberbus.syoj4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 app = Flask(__name__)
 CORS(app)
+#CORS(app, resources={r"/*": {"origins": "*"}})
 bcrypt = Bcrypt(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Here are my datasets
-bookings = dict()    
-
-client =MongoClient("mongodb+srv://dmouryapr:Abstergo97@uberbus.syoj4.mongodb.net/bookings?retryWrites=true&w=majority")
-db=client.bookings
-
+bookings = dict()   
+users1 = dict()   
 
 ################
-# JWT
+# Security
 ################
 def set_env_var():
     global g
     if 'database_url' not in g:
-        g['database_url'] = os.environ.get("DATABASE_URL", 'mongodb+srv://dmouryapr:Abstergo97@uberbus.syoj4.mongodb.net/bookings?retryWrites=true&w=majority')
+        g['database_url'] = os.environ.get("DATABASE_URL", 'mongodb+srv://test:test@bookings.hclbd.mongodb.net/bookings?retryWrites=true&w=majority')
     if 'secret_key' not in g:
-        g['secret_key'] = os.environ.get("SECRET_KEY", "my_precious_1989")
-    # g['secret_key'] = os.environ.get("SECRET_KEY", "your256bitsecret")
+        g['secret_key'] = os.environ.get("SECRET_KEY", "my_precious_1869")
     if 'bcrypt_log_rounds' not in g:
         g['bcrypt_log_rounds'] = os.environ.get("BCRYPT_LOG_ROUNDS", 13)
     if 'access_token_expiration' not in g:
-        g['access_token_expiration'] = os.environ.get("ACCESS_TOKEN_EXPIRATION", 300)
+        g['access_token_expiration'] = os.environ.get("ACCESS_TOKEN_EXPIRATION", 900)
     if 'refresh_token_expiration' not in g:
-        g['refresh_token_expiration'] = os.environ.get("REFRESH_TOKEN_EXPIRATION", 86400)
+        g['refresh_token_expiration'] = os.environ.get("REFRESH_TOKEN_EXPIRATION", 2592000)
     if 'users' not in g:
-        users = os.environ.get("USERS", 'Mourya')
+        users = os.environ.get("USERS", 'Elon Musk,Bill Gates,Jeff Bezos,Mourya')
+        print('users=', users)
+        print('g.users=', list(users.split(',')))
         g['users'] = list(users.split(','))
-        print('users:', g['users'])
+        print('g.users=', g['users'])
     if 'passwords' not in g:
-        passwords = os.environ.get("PASSWORDS", 'Tesla')
+        passwords = os.environ.get("PASSWORDS", 'Tesla,Clippy,Blue Horizon,Pratap')
         g['passwords'] = list(passwords.split(','))
-        print("passwords in g:", g['passwords'])
+        print("g['passwords']=", g['passwords'])
+        # Once hashed, the value is irreversible. However in the case of 
+        # validating logins a simple hashing of candidate password and 
+        # subsequent comparison can be done in constant time. This helps 
+        # prevent timing attacks.
+        #g['password_hashes'] = list(map(lambda p: bcrypt.generate_password_hash(str(p), g['bcrypt_log_rounds']).decode('utf-8'), g['passwords']))
         g['password_hashes'] = []
         for p in g['passwords']:
             g['password_hashes'].append(bcrypt.generate_password_hash(p, 13).decode('utf-8'))
-        print("password_hashes:", g['password_hashes'])
+        print("g['password_hashes]=", g['password_hashes'])
         g['userids'] = list(range(0, len(g['users'])))
-        print("userids", g['userids'])
+        print("g['userids]=", g['userids'])
 
 def get_env_var(varname):
     #return g.pop(varname, None)
@@ -101,19 +110,19 @@ def decode_token(token):
 
 
 ####################
-# Uber Authentication Endpoints
+# Security Endpoints
 ####################
 @app.route("/")
 def home(): 
-    return """Welcome to online mongo/uber testing ground!<br />
+    return """Welcome to online mongo/twitter testing ground!<br />
         <br />
         Run the following endpoints:<br />
         From collection:<br/>
-        http://localhost:5000/bookings<br />
-        http://localhost:5000/bookings-week<br />
-        http://localhost:5000/bookings-week-results<br />
+        http://localhost:5000/tweets<br />
+        http://localhost:5000/tweets-week<br />
+        http://localhost:5000/tweets-week-results<br />
         Create new data:<br />
-        http://localhost:5000/mock-bookings<br />
+        http://localhost:5000/mock-tweets<br />
         Optionally, to purge database: http://localhost:5000/purge-db"""
 
 @app.route("/doc")
@@ -122,11 +131,11 @@ def doc():
         <br />
         Run the following endpoints:<br />
         From collection:<br/>
-        http://localhost:5000/bookings<br />
-        http://localhost:5000/bookings-week<br />
-        http://localhost:5000/bookings-week-results<br />
+        http://localhost:5000/tweets<br />
+        http://localhost:5000/tweets-week<br />
+        http://localhost:5000/tweets-week-results<br />
         Create new data:<br />
-        http://localhost:5000/mock-bookings<br />
+        http://localhost:5000/mock-tweets<br />
         Optionally, to purge database: http://localhost:5000/purge-db"""
 
 # Returns an encoded userid as jwt access and a refresh tokens. Requires username 
@@ -135,46 +144,68 @@ def doc():
 @app.route("/login", methods=["POST"])
 def login():
     try:
+        print("keys")
+
         user = request.json['name']
         password = request.json['password']
         print('user:', user)
+        obj = get_user(user)
         print('password:', password)
         print('users:', get_env_var('users'))
         if not user or not password:
-            print('Username or the password not entered')
-            return jsonify(("Username and password authentication failed", status.HTTP_401_UNAUTHORIZED))
-        elif not user in get_env_var('users'):
-            print('No such username exists')
-            return jsonify(("Entered username does not exist", status.HTTP_401_UNAUTHORIZED))
+            print('not user or not password!')
+            return jsonify(("Authentication is required and has failed!", status.HTTP_401_UNAUTHORIZED))
+
+        # elif not user in get_env_var('users'):
+        #     print('unknown user!')
+        #     return jsonify(("Unknown user!", status.HTTP_401_UNAUTHORIZED))
+        elif obj["username"] != user:
+            print('unknown user!')
+            return jsonify(("Unknown user!", status.HTTP_401_UNAUTHORIZED))
         else:
             # presumably we only store password hashes and compare passed pwd
             # with our stored hash. For simplicity, we store the full password
             # and the hash, which we retrieve here
-            print('password_hashes:', get_env_var('password_hashes'))
-            print("get_env_var('users').index(user):", get_env_var('users').index(user))
-            password_hash = get_env_var('password_hashes')[get_env_var('users').index(user)]
-            print('password_hash:', password_hash)
+            # print('password_hashes:', get_env_var('password_hashes'))
+            # print("get_env_var('users').index(user):", get_env_var('users').index(user))
+            # password_hash = get_env_var('password_hashes')[get_env_var('users').index(user)]
+            # print('password_hash:', password_hash)
+            password_hash = obj["password_hash"]
             a = datetime.now()
             if not bcrypt.check_password_hash(password_hash, password):
-                print('Verification of Password with the signature = False')
-                return jsonify(("Authentication failed", status.HTTP_401_UNAUTHORIZED))
+                print('bcrypt.check_password_hash(password_hash, password) returned False!')
+                return jsonify(("Authentication is required and has failed!", status.HTTP_401_UNAUTHORIZED))
             b = datetime.now()
             print('check_password took:', b - a)
+            # debugging
+            #print('password:', password)
+            #print('type(password):', type(password))
+            #for i in range(3):
+            #    password_hash2 = bcrypt.generate_password_hash(password, 13).decode('utf-8')
+            #    print('password_hash2:', password_hash2)
+            #    if not bcrypt.check_password_hash(password_hash2, password):
+            #        print('bcrypt.check_password_hash(password_hash, password) returned False!')
+            #        return jsonify(("Authentication is required and has failed!", status.HTTP_401_UNAUTHORIZED))
 
             # create access and refresh token for the user to save.
             # User needs to pass access token for all secured APIs.
-            userid = get_env_var('userids')[get_env_var('users').index(user)]
+            # userid = get_env_var('userids')[get_env_var('users').index(user)]
+            userid = obj["username"]
             access_token = encode_token(userid, "access")
             refresh_token = encode_token(userid, "refresh")
             print('type(access_token):', type(access_token))
             response_object = {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
+               # "userid": userid,
+               # "username": user
             }
+            #return response_object, 200
+            #return response_object
             return jsonify((response_object, status.HTTP_200_OK))
     except Exception as e:
         print('exception:', e)
-        return jsonify(("AAuthentication failed", status.HTTP_401_UNAUTHORIZED))
+        return jsonify(("Authentication is required and has failed!", status.HTTP_401_UNAUTHORIZED))
 
 
 # Returns an encoded userid. Requires both tokens. If access token expired 
@@ -186,50 +217,58 @@ def login():
 @app.route("/fastlogin", methods=["POST"])
 def fastlogin():
     try:
-        access_token = request.json['access-token']
-        refresh_token = request.json['refresh-token']
+        access_token = request.json['access']
+        refresh_token = request.json['refresh']
 
         if not access_token or not refresh_token:
-            return jsonify(("Access or Refresh token missing", status.HTTP_401_UNAUTHORIZED))
+            return jsonify(("Missing token(s)!", status.HTTP_401_UNAUTHORIZED))
         else:
             try:
                 # first, with access token:
                 userid = decode_token(access_token)
+                obj = get_user(userid)
+                print("fast login userid: ", userid)
 
-                if not userid or not userid in get_env_var('userids'):
-                    return jsonify(("No such username exists, signup or use default login", status.HTTP_401_UNAUTHORIZED))
+                # if not userid or not userid in get_env_var('userids'):
+                # if not userid in get_env_var('userids'):
+                #     print("User IDs test: ", get_env_var('userids'))
+                #     return jsonify(("User unknown, please login with username and password.", status.HTTP_401_UNAUTHORIZED))
+                if obj["username"] != userid:
+                    return jsonify(("User unknown, please login with username and password.", status.HTTP_401_UNAUTHORIZED))
 
                 try:
                     # second, with refresh token
                     userid2 = decode_token(refresh_token)
+                    print("user id 2 test: ", userid2)
 
+                    # if not userid2 or userid2 != userid:
                     if not userid2 or userid2 != userid:
-                        return jsonify(("No such username exists, signup or use default login", status.HTTP_401_UNAUTHORIZED))
+                        return jsonify(("User unknown, please login with username and password.", status.HTTP_401_UNAUTHORIZED))
 
                     # issue a new access token, keep the same refresh token
                     access_token = encode_token(userid, "access")
                     response_object = {
-                  #      "access_token": access_token.decode(),
+                      # "access_token": access_token.decode(),
                         "refresh_token": refresh_token,
                     }
                     return jsonify((response_object, status.HTTP_200_OK))
 
                 # refresh token failure: Need username/pwd login
                 except jwt.ExpiredSignatureError:
-                    return jsonify(("Signup or use default login", status.HTTP_401_UNAUTHORIZED))
+                    return jsonify(("Lease expired. Please log in with username and password.", status.HTTP_401_UNAUTHORIZED))
                 
                 except jwt.InvalidTokenError:
-                    return jsonify(("Invalid token. Use default login", status.HTTP_401_UNAUTHORIZED))
+                    return jsonify(("Invalid token. Please log in with username and password.", status.HTTP_401_UNAUTHORIZED))
 
             # access token failure: Need at least fast login
             except jwt.ExpiredSignatureError:
-                return jsonify(("Signature expired. Use fast login", status.HTTP_401_UNAUTHORIZED))
+                return jsonify(("Signature expired. Please fast log in.", status.HTTP_401_UNAUTHORIZED))
             
             except jwt.InvalidTokenError:
-                return jsonify(("Invalid token. Use fast login", status.HTTP_401_UNAUTHORIZED))
+                return jsonify(("Invalid token. Please fast log in.", status.HTTP_401_UNAUTHORIZED))
 
     except:
-        return jsonify(("Token issue. Use default login", status.HTTP_401_UNAUTHORIZED))
+        return jsonify(("Missing token or other error. Please log in with username and password.", status.HTTP_401_UNAUTHORIZED))
 
 
 def verify_token(token):
@@ -240,17 +279,76 @@ def verify_token(token):
         print("verify_token():", userid in get_env_var('userids'))
 
         if userid is None or not userid in get_env_var('userids'):
-            print("Token verification = False")
-            return False, jsonify(("No such username exists, signup or use default login", status.HTTP_401_UNAUTHORIZED))
+            print("verify_token() returning False")
+            return False, jsonify(("User unknown!", status.HTTP_401_UNAUTHORIZED))
         else:
-            print("Token verification = True")
+            print("verify_token() returning True")
             return True, userid
 
     except jwt.ExpiredSignatureError:
-        return False, jsonify(("Signature expired. Use default log in", status.HTTP_401_UNAUTHORIZED))
+        return False, jsonify(("Signature expired. Please log in.", status.HTTP_401_UNAUTHORIZED))
 
     except jwt.InvalidTokenError:
-        return False, jsonify(("Invalid token. Use default log in", status.HTTP_401_UNAUTHORIZED))
+        return False, jsonify(("Invalid token. Please log in.", status.HTTP_401_UNAUTHORIZED))
+
+
+################################
+# Add and get new users
+################################
+def insert_user(r):
+    start_time = datetime.now()
+    with mongo_client:
+        #start_time_db = datetime.now()
+        db = mongo_client['bookings']
+        #microseconds_caching_db = (datetime.now() - start_time_db).microseconds
+        #print("*** It took " + str(microseconds_caching_db) + " microseconds to cache mongo handle.")
+
+        print("...insert_user() to mongo: ", r)
+        try:
+            mongo_collection = db['users']
+            result = mongo_collection.insert_one(r)
+            print("inserted _ids: ", result.inserted_id)
+        except Exception as e:
+            print(e)
+
+    microseconds_doing_mongo_work = (datetime.now() - start_time).microseconds
+    print("*** It took " + str(microseconds_doing_mongo_work) + " microseconds to insert_one.")
+
+
+@app.route("/register", methods=["POST"])
+def add_user(): 
+    username = request.json['username']
+    password = request.json["password"]
+    password_hash = bcrypt.generate_password_hash(password, 13).decode('utf-8')
+    adduser = dict(username=username, password=password, password_hash = password_hash,
+                _id=str(ObjectId()))               
+    users1[username] = password
+    insert_user(adduser)
+    print('User submitted:', adduser)
+    return jsonify(adduser)
+
+
+def get_user(username):
+    start_time = datetime.now()
+    obj = {}
+    with mongo_client:
+        #start_time_db = datetime.now()
+        db = mongo_client['bookings']
+        #microseconds_caching_db = (datetime.now() - start_time_db).microseconds
+        #print("*** It took " + str(microseconds_caching_db) + " microseconds to cache mongo handle.")
+
+        print("...get_user() from mongo: ", username)
+        try:
+            mongo_collection = db['users']
+            result = mongo_collection.find({"username":username})
+            for doc in result:
+                    obj = doc
+        except Exception as e:
+            print(e)
+    return obj
+
+    microseconds_doing_mongo_work = (datetime.now() - start_time).microseconds
+    print("*** It took " + str(microseconds_doing_mongo_work) + " microseconds to insert_one.")   
 
 
 ################
@@ -260,7 +358,7 @@ def verify_token(token):
 def atlas_connect():
     # Node
     # const MongoClient = require('mongodb').MongoClient;
-    # const uri = "mongodb+srv://admin:<password>@bookings.8ugzv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+    # const uri = "mongodb+srv://admin:<password>@tweets.8ugzv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
     # const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     # client.connect(err => {
     # const collection = client.db("test").collection("devices");
@@ -292,6 +390,7 @@ def insert_one(r):
 
     microseconds_doing_mongo_work = (datetime.now() - start_time).microseconds
     print("*** It took " + str(microseconds_doing_mongo_work) + " microseconds to insert_one.")
+    return result.inserted_id
 
 
 def update_one(r):
@@ -390,66 +489,36 @@ def ssm():
 
 
 ##################
-# Uber endpoints
+# bookings Endpoints 
 ##################
 
-@app.route('/health', methods=["GET"])
-def getHealth():
-    return "Health checck - uber.Py application"
-
-# endpoint to signup a user
-@app.route("/register", methods=["POST"])
-def add_user():
-    username = request.json['username']
-    password = request.json["password"]
-    adduser = dict(username=username, password=password,
-                _id=str(ObjectId()))
-    insert_user(adduser)
-    print('User successfully registered:', adduser)
-    return jsonify(adduser)
-def insert_user(r):
-    start_time = datetime.now()
-    with mongo_client:
-        #start_time_db = datetime.now()
-        db = mongo_client['bookings']
-        #microseconds_caching_db = (datetime.now() - start_time_db).microseconds
-        #print("*** It took " + str(microseconds_caching_db) + " microseconds to cache mongo handle.")
-        print("...insert_user() to mongo: ", r)
-        try:
-            mongo_collection = db['users']
-            result = mongo_collection.insert_one(r)
-            print("inserted _ids: ", result.inserted_id)
-        except Exception as e:
-            print(e)
-    microseconds_doing_mongo_work = (datetime.now() - start_time).microseconds
-    print("*** It took " + str(microseconds_doing_mongo_work) + " microseconds to insert_one.")
-
-
-# endpoint to book a new ride
-@app.route("/book-ride", methods=["POST"])
-def add_bookride():
-    
+# secured with jwt
+# endpoint to create new booktrip
+@app.route("/book-trip", methods=["POST"])
+def add_booktrip():
     user = request.json['user']
-    # userEmail = request.json['userEmail']
-    firstName = request.json["firstNameA"]
-    lastName = request.json["lastNameA"]
-    source = request.json["sourceA"]
-    destination = request.json["destinationA"]
-    journeyDate = request.json["journeydDateA"]
-
+    source = request.json["sourceP"]
+    destination = request.json["destinationP"]
+    journeyDate = request.json["journeydDateP"]
+    #accesstoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiTW91cnlhIiwiZmlyc3ROYW1lUCI6Ik1vdXJ5YSIsImxhc3ROYW1lUCI6IlJlZGR5Iiwic291cmNlUCI6IkJvc3RvbiIsImRlc3RpbmF0aW9uUCI6IkZsb3JpZGEiLCJqb3VybmV5RGF0ZSI6IjIwMjEtMDQtMjAifQ.1ZNx3Qopm5h07ecNhoNQ1_VFLNt_c516wdtgglh7wCc"
     access_token = request.json['access-token']
     print("access_token:", access_token)
     permission = verify_token(access_token)
+    # if not permission[0]: 
+    #     print("tweet submission denied due to invalid token!")
+    #     print(permission[1])
+    #     return permission[1]
+    # else:
     print('access token accepted!')
 
-    bookride = dict(user=user, firstName=firstName, lastName=lastName, source=source,
+    booktrip = dict(user=user, source=source,
                  destination=destination,journeyDate=journeyDate,date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 _id=str(ObjectId()))
-    bookings[bookride['_id']] = bookride
+    bookings[booktrip['_id']] = booktrip
 
-    insert_one(bookride)
-    print('Successfully booked a ride:', bookride)
-    return jsonify(bookride)
+    insert_one(booktrip)
+    print('Booking submitted:', booktrip)
+    return jsonify(booktrip)
 
 # endpoint to show all of today's bookings
 @app.route("/bookings-day2", methods=["GET"])
@@ -461,12 +530,12 @@ def get_bookings_day2():
     )
     return jsonify(todaysbookings)
 
-# endpoint to show all bookings 
+# endpoint to show all tweets 
 @app.route("/bookings2", methods=["GET"])
 def get_bookings2():
     return jsonify(bookings)
 
-# endpoint to show all of this week's bookings (any user)
+# endpoint to show all of this week's tweets (any user)
 @app.route("/bookings-week", methods=["GET"])
 def get_bookings_week2():
     weeksbookings = dict(
@@ -499,17 +568,16 @@ def get_bookings_week_results():
     #return jsonify(todaysbookings)
     return json.dumps({"results":
         sorted(
-            [filter_bookride(k) for k in weekbookings.keys()],
+            [filter_booktrip(k) for k in weekbookings.keys()],
             key = lambda t: t['date']
         )
     })
 
-# endpoint to show all of today's bookings (user-specific)
-def filter_bookride(t):
-    bookride = bookings[t]
-    return dict(date=bookride['date'], firstName=bookride['firstName'], 
-                lastName=bookride['lastName'], source=bookride['source'],
-                destination=bookride['destination'],journeyDate=bookride['journeyDate'], user=bookride['user'])
+# endpoint to show all of today's tweets (user-specific)
+def filter_booktrip(t):
+    booktrip = bookings[t]
+    return dict(date=booktrip['date'], source=booktrip['source'],
+                destination=booktrip['destination'],journeyDate=booktrip['journeyDate'], user=booktrip['user'])
 @app.route("/bookings-user-day", methods=["POST"])
 def get_bookings_user_day():
     user = request.json['user']
@@ -517,7 +585,7 @@ def get_bookings_user_day():
         filter(lambda elem: 
                 elem[1]['date'].split(' ')[0] == datetime.now().strftime("%Y-%m-%d") and
                 (
-                    False == elem[1]['private'] or
+                   False == elem[1]['private'] or
                     user == elem[1]['user']
                 ), 
                 bookings.items())
@@ -525,12 +593,12 @@ def get_bookings_user_day():
     #return jsonify(todaysbookings)
     return jsonify(
         sorted(
-            [filter_bookride(k) for k in todaysbookings.keys()],
+            [filter_booktrip(k) for k in todaysbookings.keys()],
             key = lambda t: t['date']
         )
     )
 
-# endpoint to show all of this week's bookings (user-specific)
+# endpoint to show all of this week's tweets (user-specific)
 @app.route("/bookings-user-week", methods=["POST"])
 def get_bookings_user_week():
     user = request.json['user']
@@ -546,7 +614,7 @@ def get_bookings_user_week():
     #return jsonify(weeksbookings)
     return jsonify(
         sorted(
-            [filter_bookride(k) for k in weeksbookings.keys()],
+            [filter_booktrip(k) for k in weeksbookings.keys()],
             key = lambda t: t['date']
         )
     )
@@ -554,12 +622,13 @@ def get_bookings_user_week():
 
 @app.route("/bookings-user-week-results", methods=["GET"])
 def get_bookings_user_week_results():
-    user = request.json['user']
+    print(request)
+    user = request.args.get('user')
     weekbookings = dict(
         filter(lambda elem: 
                 (datetime.now() - datetime.strptime(elem[1]['date'].split(' ')[0], '%Y-%m-%d')).days < 7 and
                 (
-                    False == elem[1]['private'] or
+                    #False == elem[1]['private'] or
                     user == elem[1]['user']
                 ), 
                 bookings.items())
@@ -567,15 +636,15 @@ def get_bookings_user_week_results():
     #return jsonify(todaysbookings)
     return json.dumps({"results":
         sorted(
-            [filter_bookride(k) for k in weekbookings.keys()],
+            [filter_booktrip(k) for k in weekbookings.keys()],
             key = lambda t: t['date']
         )
     })
 
 
-# endpoint to get bookride detail by id
-@app.route("/bookride/<id>", methods=["GET"])
-def bookride_detail(id):
+# endpoint to get tweet detail by id
+@app.route("/booktrip/<id>", methods=["GET"])
+def booktrip_detail(id):
     return jsonify(bookings[id])
 
 
@@ -599,65 +668,8 @@ def applyCollectionLevelUpdates():
         sorted_records = sorted(records, key=lambda t: datetime.strptime(t['date'], '%Y-%m-%d %H:%M:%S'))
         #return json.dumps({"results": sorted_records })
 
-        for bookride in sorted_records:
-            bookings[bookride['_id']] = bookride
-
-
-################################################
-# Mock
-################################################
-
-# add new bookride, for testing
-@app.route("/dbg-bookride", methods=["GET"])
-def dbg_bookride():
-    with app.test_client() as c:
-        json_data = []
-        name = ''.join(random.choices(string.ascii_lowercase, k=7))
-        description = ''.join(random.choices(string.ascii_lowercase, k=50))
-        print("posting..")
-        rv = c.post('/bookride', json={
-            'user': name, 'description': description,
-            'private': False, 'pic': None
-        })
-    return rv.get_json()
-
-
-# endpoint to mock bookings
-@app.route("/mock-bookings", methods=["GET"])
-def mock_bookings():
-
-    # first, clear all collections
-    global bookings
-    bookings.clear()
-
-    # create new data
-    json_data_all = []
-    with app.test_client() as c:
-        
-        # bookings: 30
-        print("@@@ mock-bookings(): bookings..")
-        json_data_all.append("@@@ bookings")            
-        for i in range(30):
-            description = []
-            private = random.choice([True, False])
-            for j in range(20):
-                w = ''.join(random.choices(string.ascii_lowercase, k=random.randint(0,7)))
-                description.append(w)
-            description = ' '.join(description)
-            u = ''.join(random.choices(string.ascii_lowercase, k=7))
-            img_gender = random.choice(['women', 'men'])
-            img_index = random.choice(range(100))
-            img_url = 'https://randomuser.me/api/portraits/' + img_gender + '/' + str(img_index) + '.jpg'
-            rv = c.post('/bookride', json={
-                'user': u, 'private': private,
-                'description': description, 'pic': img_url
-            })
-            #json_data.append(rv.get_json())
-        json_data_all.append(bookings)
-
-    # done!
-    print("@@@ mock-bookings(): done!")
-    return jsonify(json_data_all)
+        for booktrip in sorted_records:
+            bookings[booktrip['_id']] = booktrip
 
 
 ##################
@@ -674,6 +686,7 @@ def before_first_request_func():
 # This runs once before any request
 @app.before_request
 def before_request_func():
+    set_env_var()
     applyRecordLevelUpdates()
 
 

@@ -81,34 +81,40 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const Bookuberride = () => {
+const Bookatrip = () => {
   const classes = useStyles();
   const history = useHistory();
   const [username, setUsername] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  // const [firstName, setFirstName] = useState('');
+  // const [lastName, setLastName] = useState('');
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
   const [journeyDate, setJourneyDate] = useState('');
 
 
     // async launch POST with access token
-    const postTweet = async (user, firstNameA, lastNameA, sourceA, destinationA, journeyDateA) => {
+    const postTweet = async (sourceP, destinationP, journeyDateP) => {
       const access_token = getAccessToken();
       console.log('access_token:');
+      const user = localStorage.getItem("username");
       console.log(access_token);
       const paramdict = {
         'user': user,
-        'firstNameA': firstNameA,
-        'lastNameA': lastNameA,
-        'sourceA': sourceA,
-        'destinationA': destinationA,
-        'journeydDateA': journeyDateA,
+        'sourceP': sourceP,
+        'destinationP': destinationP,
+        'journeydDateP': journeyDateP,
         'access-token': access_token
       }
 
     console.log('postTweet paramdict:');
     console.log(paramdict);
+    console.log(localStorage.getItem(username));
+
+    if (user == null){
+      alert("Please login to Book a Trip!");
+    } else {
+      alert("Your trip has been Booked!");
+
 
     try {
       const config = {
@@ -121,20 +127,12 @@ const Bookuberride = () => {
       }
       
       //print("Compose.js: fetching from " + `${process.env.REACT_APP_API_SERVICE_URL}/tweet`)
-      //const response = await fetch("http://localhost:5000/tweet", config);
+      const response = await fetch("http://localhost:5000/book-trip", config);
       //const response = await fetch(`${process.env.REACT_APP_BE_NETWORK}:${process.env.REACT_APP_BE_PORT}/tweet`, config);
       //const response = await fetch(`${process.env.REACT_APP_API_SERVICE_URL}/tweet`, config);
       //const response = await fetch("http://a6df721a5f50a4c0db1336cda1a5ea5e-1368272632.us-east-1.elb.amazonaws.com:5000/book-ride", config);
-      const response = await fetch("/book-ride", config);
+      //const response = await fetch("/book-ride", config);
       //const json = await response.json()
-      if (response.ok) {
-          //return json
-          //return response
-          console.log("success on send.");
-          
-      } else {
-          alert("response: " + response.toString());
-      }
 
       try {
         const data = await response.json();
@@ -143,6 +141,8 @@ const Bookuberride = () => {
 
         // back to landing page!
         history.push("/");
+        history.push(data);
+
       } catch (err) {
         console.log(err);
         alert("exception on reply!");
@@ -152,6 +152,7 @@ const Bookuberride = () => {
       console.log(error);
       alert("Login before booking");
     }
+  }
   };
 
 
@@ -159,7 +160,7 @@ const Bookuberride = () => {
     event.preventDefault()
 
     const priv = true;    
-    postTweet(username, firstName, lastName, source, destination, journeyDate);  
+    postTweet(source, destination, journeyDate);  
   }
 
   return (
@@ -170,7 +171,7 @@ const Bookuberride = () => {
             {'Book a ride'}
           </Typography>
           <form className={classes.form} onSubmit={handleSubmit} >
-          <TextField
+          {/* <TextField
               value={username}
               onInput={(e) => setUsername(e.target.value)}
               variant="outlined"
@@ -210,7 +211,7 @@ const Bookuberride = () => {
               inputProps={{ pattern: "^[a-zA-Z]+$" }}
               autoComplete="lastName"
               autoFocus
-            />
+            /> */}
             <TextField
              value={source} 
                onInput={(e) => setSource(e.target.value)} 
@@ -296,4 +297,4 @@ const Bookuberride = () => {
   )
 }
 
-export default Bookuberride
+export default Bookatrip

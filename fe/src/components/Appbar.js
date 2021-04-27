@@ -36,8 +36,8 @@ import SignUp from "../pages/SignUp/SignUp";
 import SignIn from "../pages/SignIn/SignIn";
 import PasswordReset from "../pages/PasswordReset/PasswordReset";
 import PasswordChange from "../pages/PasswordChange/PasswordChange";
-import THome from "../pages/Home";
-import Bookuberride from "../pages/Compose/Bookuberride";
+import THome from "../pages/Tweets/Home";
+import Bookatrip from "../pages/Compose/Bookatrip";
 
 const drawerWidth = 240;
 const history = createBrowserHistory();
@@ -245,7 +245,7 @@ export default function Dashboard() {
             </ListItem>
 
             {/* Compose menu item*/}
-            <ListItem button component={Link} to="/bookuberride" onClick={onItemClick('Book a Trip')}>
+            <ListItem button component={Link} to="/bookatrip" onClick={onItemClick('Book a Trip')}>
               <ListItemIcon>
               <EmojiTransportationRoundedIcon/>
               </ListItemIcon>
@@ -283,7 +283,7 @@ export default function Dashboard() {
           {/* menu paths */}
           <Route exact path="/" component={Home} />
           <Route path="/bookings" component={THome} />
-          <Route path="/bookuberride" component={Bookuberride} />
+          <Route path="/bookatrip" component={Bookatrip} />
           <Route path="/signin" component={SignIn} />
           <Route path="/signup" component={SignUp} />
           <Route path="/password_reset" component={PasswordReset} />

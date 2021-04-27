@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const addUser = async (username, password) => {
-  console.log("I am in add user")
+  console.log("add user signup")
   const paramdict = {
     'username': username,
     'password': password
@@ -66,7 +66,11 @@ const addUser = async (username, password) => {
         },
         body: JSON.stringify(paramdict)
     }
-    const response = await fetch("/register", config);
+
+
+    const response = await fetch("http://localhost:5000/register", config);
+    //const response = await fetch("/register", config);
+    //const response = await fetch(`${process.env.REACT_APP_API_SERVICE_URL}:5000/register`, config);
     //const json = await response.json()
     if (response.ok) {
         //return json
@@ -90,10 +94,10 @@ const addUser = async (username, password) => {
       alert("exception on reply!");
     }
 
-} catch (error) {
-  console.log(error);
-  alert("exception on send");
-}
+  } catch (error) {
+    console.log(error);
+    alert("exception on send");
+  }
 };
 
 const SignUp = () => {
@@ -108,16 +112,19 @@ const SignUp = () => {
     event.preventDefault()
 
     // fwo: register new user!
+    console.log(username)
+    console.log(password)
     //.. return userid
+
     addUser(username, password)
     setUsername('')
     setPassword('')
 
     // save more: name, group, userid
-    authenticate({
-      displayName: 'User',
-      email: username,
-    })
+    // authenticate({
+    //   displayName: 'User',
+    //   email: username,
+    // })
   }
 
   const authenticate = (user) => {

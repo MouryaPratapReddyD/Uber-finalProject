@@ -41,6 +41,7 @@ function logout() {
   if (typeof Storage !== 'undefined') {
     try {
         localStorage.removeItem(localStorageAuthKey);
+        localStorage.removeItem("username");
     } catch (ex) {
         console.log(ex);
     }
@@ -125,32 +126,45 @@ const SignIn = () => {
 
     //print("Signin.js: fetching from " + `${process.env.REACT_APP_API_SERVICE_URL}/login`)
     // verify user/pwd, get encoded userid as access and refresh tokens in return
-    //fetch("http://localhost:5000/login", config)
+    fetch("http://localhost:5000/login", config)
     //fetch(`${process.env.REACT_APP_BE_NETWORK}:${process.env.REACT_APP_BE_PORT}/login`, config)
     //fetch(`${process.env.REACT_APP_API_SERVICE_URL}/login`, config)
     //fetch("http://a6df721a5f50a4c0db1336cda1a5ea5e-1368272632.us-east-1.elb.amazonaws.com:5000/login", config)
-    fetch("/login", config)
-      .then(response => response.json())
-      .then(data => {
+    //fetch("/login", config)
+    .then(response => response.json())
+    .then(data => {
 
-        // save to local storage
-        console.log("Keys:")
-        console.log(data);
-        console.log(data[0].access_token);
-        console.log(data[0].refresh_token);
-        saveAuthorisation({
-          access: data[0].access_token,
-          refresh: data[0].refresh_token,
-        });
+      // save to local storage
+      console.log("received these keys in return:")
+      console.log(data);
 
-        // back to landing page!
-        history.push("/");
-      })
-      .catch( (err) => {
-        alert(err);
-        console.log(err);
+      if (typeof Storage !== 'undefined') {
+        try {
+            localStorage.setItem("username", username);
+           // alert(username);
+        } catch (ex) {
+            console.log(ex);
+        }
+    } else {
+        // No web storage Support :-(
+    }
+
+      console.log(data[0].access_token);
+      console.log(data[0].refresh_token);
+      console.log('---');
+      saveAuthorisation({
+        access: data[0].access_token,
+        refresh: data[0].refresh_token,
       });
-  }
+
+      // back to landing page!
+      history.push("/");
+    })
+    .catch( (err) => {
+      alert(err);
+      console.log(err);
+    });
+}
 
   // we submit our tokens and receive
   // a refreshed a renewed access
@@ -170,38 +184,38 @@ const SignIn = () => {
 
     //print("Signin.js: fetching from " + `${process.env.REACT_APP_API_SERVICE_URL}/fastlogin`)
     // verify user/pwd, get encoded userid as access and refresh tokens in return
-    //fetch("http://localhost:5000/fastlogin", config)
+    fetch("http://localhost:5000/fastlogin", config)
     //fetch(`${process.env.REACT_APP_BE_NETWORK}:${process.env.REACT_APP_BE_PORT}/fastlogin`, config)
     //fetch(`${process.env.REACT_APP_API_SERVICE_URL}/fastlogin`, config)
     //fetch("http://a6df721a5f50a4c0db1336cda1a5ea5e-1368272632.us-east-1.elb.amazonaws.com:5000/fastlogin", config)
-    fetch("/fastlogin", config)
-      .then(response => response.json())
-      .then(data => {
+    //fetch("/fastlogin", config)
+    .then(response => response.json())
+    .then(data => {
 
-        // save to local storage
-        console.log("Keys:")
-        console.log(data);
-        saveAuthorisation({
-          access: data[0][0],
-          refresh: data[0][1],
-        });
-
-        // back to landing page!
-        history.push("/");
-      })
-      .catch( (err) => {
-        alert(err);
-        console.log(err);
+      // save to local storage
+      console.log("received these keys in return:")
+      console.log(data);
+      saveAuthorisation({
+        access: data[0][0],
+        refresh: data[0][1],
       });
-  }
 
-  // Logout attempt
-  const handleSignOut = () => { 
-    logout();
+      // back to landing page!
+      history.push("/");
+    })
+    .catch( (err) => {
+      alert(err);
+      console.log(err);
+    });
+}
 
-    // back to landing page!
-    history.push("/");
-  }
+// Logout attempt
+const handleSignOut = () => { 
+  logout();
+
+  // back to landing page!
+  history.push("/");
+}
 
 
   return (
