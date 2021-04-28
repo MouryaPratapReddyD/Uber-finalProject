@@ -27,19 +27,19 @@ resource "aws_codebuild_project" "uberCI" {
       name  = "AWS_REGION"
       value = "us-east-2"
     }
- 
-    resource {
-      type                = "GITHUB"
-      location            = "https://github.com/MouryaPratapReddyD/Uber-finalProject.git"
-      git_clone_depth     = "1" 
-      report_build_status = true
-      auth {
-        type     = "OAUTH"
-        resource = "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"
-      }
-    } 
+  }
+  source {
+    type                = "GITHUB"
+    location            = "https://github.com/MouryaPratapReddyD/Uber-finalProject.git"
+    git_clone_depth     = "1" 
+    report_build_status = true
+    auth {
+      type     = "OAUTH"
+      resource = "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"
+    }
   } 
-}
+}   
+
 
 resource "aws_codebuild_webhook" "uberCI" {
   project_name = aws_codebuild_project.uberCI.name
