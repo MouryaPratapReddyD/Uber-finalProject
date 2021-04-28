@@ -19,7 +19,7 @@ resource "aws_launch_configuration" "final" {
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.final-node.name
   image_id                    = data.aws_ami.eks-worker.id
-  instance_type               = "t2.micro"
+  instance_type               = "t2.small"
   name_prefix                 = "terraform-eks-final"
   security_groups             = [aws_security_group.final-node.id]
   user_data_base64            = "${base64encode(local.final-node-userdata)}"

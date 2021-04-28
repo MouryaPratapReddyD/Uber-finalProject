@@ -19,8 +19,8 @@ spec:
     app: uberbe
   spec:
    containers:
-    - image: 211252803163.dkr.ecr.us-east-2.amazonaws.com/uberbe:prod
-      imagePullPolicy: Always
-      name: uberbe
-      ports:
-       - containerPort: 5000
+   - image: 211252803163.dkr.ecr.us-east-2.amazonaws.com/uberbe:prod
+     imagePullPolicy: Always
+     name: uberbe
+     ports:
+     - containerPort: 5000
