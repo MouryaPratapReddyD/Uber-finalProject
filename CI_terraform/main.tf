@@ -21,11 +21,11 @@ resource "aws_codebuild_project" "uberCI" {
     //image_pull_credentials_type = "SERVICE_ROLE"
     environment_variable {
       name  = "AWS_ACCOUNT_ID"
-      value = "847450032545"
+      value = "211252803163"
     }
     environment_variable {
       name  = "AWS_REGION"
-      value = "us-east-1"
+      value = "us-east-2"
     }
  
    source {
