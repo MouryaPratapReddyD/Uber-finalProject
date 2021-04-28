@@ -36,8 +36,8 @@ mongo_client = MongoClient("mongodb+srv://dmouryapr:Abstergo97@uberbus.syoj4.mon
 # mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority
 # client = pymongo.MongoClient("mongodb+srv://dmouryapr:<password>@uberbus.syoj4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 app = Flask(__name__)
-CORS(app)
-#CORS(app, resources={r"/*": {"origins": "*"}})
+#CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 bcrypt = Bcrypt(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
