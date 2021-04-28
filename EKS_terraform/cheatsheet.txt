@@ -1,21 +1,21 @@
 terraform init, plan, apply
 
-terraform output kubeconfig > c:/Users/moury/.kube/config-terraform-eks-demo
+terraform output kubeconfig > c:/Users/moury/.kube/config-terraform-eks-final
 # Remove <<EOT and EOT and remove the lines above apiVersion: v1 line in the above file
 
 cp C:/Users/moury/.kube/config C:/Users/moury/.kube/config.bak
-cp C:/Users/moury/.kube/config-terraform-eks-demo C:/Users/moury/.kube/config
+cp C:/Users/moury/.kube/config-terraform-eks-final C:/Users/moury/.kube/config
 
 terraform output config_map_aws_auth  #to view the configmap
 terraform output config_map_aws_auth > ./config-map-aws-auth.yml
 # Remove <<EOT and EOT and remove the lines above apiVersion: v1 line in the above file
 
-aws eks get-token --cluster-name terraform-eks-demo  //dont know if i should use this, but used it
+aws eks get-token --cluster-name terraform-eks-final  //dont know if i should use this, but used it
 kubectl apply -f ./config-map-aws-auth.yml   //ran in cmd prompt, not in powershell
 
 kubectl get nodes
 
-aws eks --region us-west-2 update-kubeconfig --name terraform-eks-demo    //this is working, added region in it
+aws eks --region us-east-2 update-kubeconfig --name terraform-eks-final    //this is working, added region in it
 // deleted the config file in .kube folder than ran the above amd. it worked
 
 kubectl create -f https://raw.githubusercontent.com/dinorows/TCO490/master/kubernetes-dashboard-15.yaml

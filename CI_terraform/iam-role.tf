@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "policy" {
          ]
 
     resources = [
-      "arn:aws:codebuild:us-east-1:211252803163:report-group/uberCI-*",
+      "arn:aws:codebuild:us-east-2:211252803163:report-group/uberCI-*",
     ]
   }
 }
