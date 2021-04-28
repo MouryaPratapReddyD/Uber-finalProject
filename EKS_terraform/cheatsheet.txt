@@ -24,9 +24,9 @@ kubectl proxy --port=8080 --disable-filter=true
 Part 3 deploy pods to k8s
 
 kubectl apply -f uberbe-deployment.yaml
-kubectl apply -f service-uberbe-lb.yaml
+kubectl apply -f service-uberbe.yaml
 kubectl apply -f uberfe-deployment.yaml
-kubectl apply -f service-uberfe-lb.yaml
+kubectl apply -f service-uberfe.yaml
 
 kubectl get svc  //this has external ip to call the fe 
 Paste   http://<webapp's IP in kubectl get svc>   in the springboot endpoint address field in the frontend app in the browser
