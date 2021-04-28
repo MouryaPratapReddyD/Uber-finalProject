@@ -28,7 +28,7 @@ resource "aws_codebuild_project" "uberCI" {
       value = "us-east-2"
     }
  
-    source {
+    resource {
       type                = "GITHUB"
       location            = "https://github.com/MouryaPratapReddyD/Uber-finalProject.git"
       git_clone_depth     = "1" 
