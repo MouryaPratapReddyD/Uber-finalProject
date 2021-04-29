@@ -19,7 +19,7 @@ spec:
     app: uberfe
   spec:
    containers:
-   - image: 211252803163.dkr.ecr.us-east-1.amazonaws.com/uberfe:prod
+   - image: 211252803163.dkr.ecr.us-east-2.amazonaws.com/uberfe:prod
      imagePullPolicy: Always
      name: uberfe
      ports:

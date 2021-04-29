@@ -15,7 +15,7 @@ kubectl apply -f ./config-map-aws-auth.yml   //ran in cmd prompt, not in powersh
 
 kubectl get nodes
 
-aws eks --region us-east-1 update-kubeconfig --name terraform-eks-final    //this is working, added region in it
+aws eks --region us-east-2 update-kubeconfig --name terraform-eks-final    //this is working, added region in it
 // deleted the config file in .kube folder than ran the above amd. it worked
 
 kubectl create -f https://raw.githubusercontent.com/dinorows/TCO490/master/kubernetes-dashboard-15.yaml
